@@ -1,77 +1,57 @@
-// src/App.jsx
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import VideoCompressor from './VideoCompressor';
 
-// Componentes temporales (Views) para estructurar el enrutamiento
-const GalleryView = () => (
-  <div className="p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Mi Galería</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {/* Skeleton de carga temporal para imaginar cómo se verán las fotos */}
-                      {[1, 2, 3, 4, 5, 6].map((item) => (
-                              <div key={item} className="aspect-square bg-gray-200 rounded-lg shadow-sm flex items-center justify-center text-gray-400 border border-dashed border-gray-300">
-                                        Media {item}
-                                                </div>
-                                                      ))}
-                                                          </div>
-                                                            </div>
-                                                            );
+const TELEGRAM_TOKEN = '8665445598:AAEAQfWOW07_GuIoM97o4uZ6H791H1Uv8P8';
+const CHAT_ID = '-1003509557962';
 
-                                                            const LoginView = () => (
-                                                              <div className="p-6 flex flex-col items-center justify-center min-h-[50vh]">
-                                                                  <h2 className="text-2xl font-bold text-gray-800 mb-2">Iniciar Sesión</h2>
-                                                                      <p className="text-gray-500 mb-6">Conéctate para gestionar tu CloudGallery</p>
-                                                                          <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
-                                                                                Entrar con Google
-                                                                                    </button>
-                                                                                      </div>
-                                                                                      );
+function App() {
+  const [uploading, setUploading] = useState(false);
 
-                                                                                      function App() {
-                                                                                        return (
-                                                                                            <Router>
-                                                                                                  <div className="min-h-screen flex flex-col">
-                                                                                                          
-                                                                                                                  {/* Header / Barra de Navegación */}
-                                                                                                                          <header className="bg-blue-600 text-white shadow-md sticky top-0 z-50">
-                                                                                                                                    <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-                                                                                                                                                <h1 className="text-2xl font-extrabold tracking-tight flex items-center gap-2">
-                                                                                                                                                              <Link to="/">
-                                                                                                                                                                              <span>☁️</span> CloudGallery
-                                                                                                                                                                                            </Link>
-                                                                                                                                                                                                        </h1>
-                                                                                                                                                                                                                    <nav className="flex items-center gap-6 font-medium">
-                                                                                                                                                                                                                                  <Link to="/" className="hover:text-blue-200 transition-colors">
-                                                                                                                                                                                                                                                  Galería
-                                                                                                                                                                                                                                                                </Link>
-                                                                                                                                                                                                                                                                              <Link 
-                                                                                                                                                                                                                                                                                              to="/login" 
-                                                                                                                                                                                                                                                                                                              className="bg-white text-blue-600 px-5 py-2 rounded-full shadow hover:bg-gray-100 hover:scale-105 transition-all"
-                                                                                                                                                                                                                                                                                                                            >
-                                                                                                                                                                                                                                                                                                                                            Acceder
-                                                                                                                                                                                                                                                                                                                                                          </Link>
-                                                                                                                                                                                                                                                                                                                                                                      </nav>
-                                                                                                                                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                                                                                                                                                        </header>
+    const handleUpload = async (compressedBlobUrl) => {
+        setUploading(true);
+            const response = await fetch(compressedBlobUrl);
+                const blob = await response.blob();
+                    
+                        const formData = new FormData();
+                            formData.append('chat_id', CHAT_ID);
+                                formData.append('video', blob, 'video_hija.mp4');
 
-                                                                                                                                                                                                                                                                                                                                                                                                {/* Zona Principal de Visualización */}
-                                                                                                                                                                                                                                                                                                                                                                                                        <main className="container mx-auto flex-grow my-6 px-4">
-                                                                                                                                                                                                                                                                                                                                                                                                                  <div className="bg-white min-h-[70vh] shadow-sm rounded-xl border border-gray-100 overflow-hidden">
-                                                                                                                                                                                                                                                                                                                                                                                                                              <Routes>
-                                                                                                                                                                                                                                                                                                                                                                                                                                            <Route path="/" element={<GalleryView />} />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                          <Route path="/login" element={<LoginView />} />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </Routes>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </main>
+                                    try {
+                                          await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendVideo`, {
+                                                  method: 'POST',
+                                                          body: formData
+                                                                });
+                                                                      alert('¡Video enviado a la galería de Telegram!');
+                                                                          } catch (error) {
+                                                                                alert('Error al enviar: ' + error.message);
+                                                                                    } finally {
+                                                                                          setUploading(false);
+                                                                                              }
+                                                                                                };
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                {/* Footer sencillo */}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <footer className="bg-white border-t border-gray-200 py-6 text-center text-gray-500 text-sm">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <p>&copy; {new Date().getFullYear()} CloudGallery. Almacenamiento potenciado por Telegram.</p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </footer>
+                                                                                                  return (
+                                                                                                      <div className="min-h-screen bg-gray-900 text-white p-6">
+                                                                                                            <header className="mb-8 border-b border-gray-700 pb-4">
+                                                                                                                    <h1 className="text-3xl font-bold">☁️ CloudGallery</h1>
+                                                                                                                            <p className="text-gray-400">Guardando los mejores momentos</p>
+                                                                                                                                  </header>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </Router>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      );
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      }
+                                                                                                                                        <main>
+                                                                                                                                                <div className="bg-gray-800 p-6 rounded-xl shadow-lg mb-8">
+                                                                                                                                                          <h2 className="text-xl mb-4">Subir nuevo video</h2>
+                                                                                                                                                                    <VideoCompressor onVideoReady={handleUpload} />
+                                                                                                                                                                              {uploading && <p className="mt-4 text-blue-400 animate-pulse">Enviando a Telegram...</p>}
+                                                                                                                                                                                      </div>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      export default App;
+                                                                                                                                                                                              <section className="grid grid-cols-2 gap-4">
+                                                                                                                                                                                                        <p className="col-span-2 text-sm text-gray-500 italic">
+                                                                                                                                                                                                                    Los videos aparecerán en tu chat de Telegram al instante.
+                                                                                                                                                                                                                              </p>
+                                                                                                                                                                                                                                      </section>
+                                                                                                                                                                                                                                            </main>
+                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                  );
+                                                                                                                                                                                                                                                  }
+
+                                                                                                                                                                                                                                                  export default App;
+                                                                                                                                                                                                                                                  

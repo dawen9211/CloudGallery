@@ -1,121 +1,77 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+// src/App.jsx
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
-function App() {
-  const [count, setCount] = useState(0)
+// Componentes temporales (Views) para estructurar el enrutamiento
+const GalleryView = () => (
+  <div className="p-6">
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">Mi Galería</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {/* Skeleton de carga temporal para imaginar cómo se verán las fotos */}
+                      {[1, 2, 3, 4, 5, 6].map((item) => (
+                              <div key={item} className="aspect-square bg-gray-200 rounded-lg shadow-sm flex items-center justify-center text-gray-400 border border-dashed border-gray-300">
+                                        Media {item}
+                                                </div>
+                                                      ))}
+                                                          </div>
+                                                            </div>
+                                                            );
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+                                                            const LoginView = () => (
+                                                              <div className="p-6 flex flex-col items-center justify-center min-h-[50vh]">
+                                                                  <h2 className="text-2xl font-bold text-gray-800 mb-2">Iniciar Sesión</h2>
+                                                                      <p className="text-gray-500 mb-6">Conéctate para gestionar tu CloudGallery</p>
+                                                                          <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                                                                                Entrar con Google
+                                                                                    </button>
+                                                                                      </div>
+                                                                                      );
 
-      <div className="ticks"></div>
+                                                                                      function App() {
+                                                                                        return (
+                                                                                            <Router>
+                                                                                                  <div className="min-h-screen flex flex-col">
+                                                                                                          
+                                                                                                                  {/* Header / Barra de Navegación */}
+                                                                                                                          <header className="bg-blue-600 text-white shadow-md sticky top-0 z-50">
+                                                                                                                                    <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+                                                                                                                                                <h1 className="text-2xl font-extrabold tracking-tight flex items-center gap-2">
+                                                                                                                                                              <Link to="/">
+                                                                                                                                                                              <span>☁️</span> CloudGallery
+                                                                                                                                                                                            </Link>
+                                                                                                                                                                                                        </h1>
+                                                                                                                                                                                                                    <nav className="flex items-center gap-6 font-medium">
+                                                                                                                                                                                                                                  <Link to="/" className="hover:text-blue-200 transition-colors">
+                                                                                                                                                                                                                                                  Galería
+                                                                                                                                                                                                                                                                </Link>
+                                                                                                                                                                                                                                                                              <Link 
+                                                                                                                                                                                                                                                                                              to="/login" 
+                                                                                                                                                                                                                                                                                                              className="bg-white text-blue-600 px-5 py-2 rounded-full shadow hover:bg-gray-100 hover:scale-105 transition-all"
+                                                                                                                                                                                                                                                                                                                            >
+                                                                                                                                                                                                                                                                                                                                            Acceder
+                                                                                                                                                                                                                                                                                                                                                          </Link>
+                                                                                                                                                                                                                                                                                                                                                                      </nav>
+                                                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                                                        </header>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+                                                                                                                                                                                                                                                                                                                                                                                                {/* Zona Principal de Visualización */}
+                                                                                                                                                                                                                                                                                                                                                                                                        <main className="container mx-auto flex-grow my-6 px-4">
+                                                                                                                                                                                                                                                                                                                                                                                                                  <div className="bg-white min-h-[70vh] shadow-sm rounded-xl border border-gray-100 overflow-hidden">
+                                                                                                                                                                                                                                                                                                                                                                                                                              <Routes>
+                                                                                                                                                                                                                                                                                                                                                                                                                                            <Route path="/" element={<GalleryView />} />
+                                                                                                                                                                                                                                                                                                                                                                                                                                                          <Route path="/login" element={<LoginView />} />
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </Routes>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </main>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
-}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                {/* Footer sencillo */}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <footer className="bg-white border-t border-gray-200 py-6 text-center text-gray-500 text-sm">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <p>&copy; {new Date().getFullYear()} CloudGallery. Almacenamiento potenciado por Telegram.</p>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </footer>
 
-export default App
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </Router>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      );
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      }
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      export default App;

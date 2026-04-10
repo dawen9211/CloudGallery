@@ -2,38 +2,53 @@ import { useState } from 'react';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
 
-function VideoCompressor() {
-  const [status, setStatus] = useState('Listo');
+function VideoCompressor({ onVideoReady }) {
+  const [status, setStatus] = useState('Esperando video...');
     const [progress, setProgress] = useState(0);
 
       const compressVideo = async (file) => {
-          const ffmpeg = new FFmpeg();
-              setStatus('Cargando motor de compresión...');
-                  
-                      await ffmpeg.load({
-                            coreURL: await toBlobURL(`https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm/ffmpeg-core.js`, 'text/javascript'),
-                                });
+          try {
+                const ffmpeg = new FFmpeg();
+                      setStatus('Cargando motor de compresión (espera un momento)...');
+                            
+                                  const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
+                                        await ffmpeg.load({
+                                                coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+                                                        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+                                                              });
 
-                                    setStatus('Comprimiendo video para Telegram...');
-                                        await ffmpeg.writeFile('input.mp4', await fetchFile(file));
-                                            
-                                                // Comando para reducir peso a menos de 50MB
-                                                    await ffmpeg.exec(['-i', 'input.mp4', '-vcodec', 'libx264', '-crf', '28', 'output.mp4']);
-                                                        
-                                                            const data = await ffmpeg.readFile('output.mp4');
-                                                                const compressedUrl = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
-                                                                    
-                                                                        setStatus('¡Compresión lista!');
-                                                                            return compressedUrl;
-                                                                              };
+                                                                    setStatus('Comprimiendo video...');
+                                                                          await ffmpeg.writeFile('input.mp4', await fetchFile(file));
+                                                                                
+                                                                                      // Ajuste de calidad para asegurar menos de 50MB
+                                                                                            await ffmpeg.exec(['-i', 'input.mp4', '-vcodec', 'libx264', '-crf', '28', '-preset', 'ultrafast', 'output.mp4']);
+                                                                                                  
+                                                                                                        const data = await ffmpeg.readFile('output.mp4');
+                                                                                                              const compressedBlob = new Blob([data.buffer], { type: 'video/mp4' });
+                                                                                                                    const compressedUrl = URL.createObjectURL(compressedBlob);
+                                                                                                                          
+                                                                                                                                setStatus('¡Compresión terminada!');
+                                                                                                                                      if (onVideoReady) onVideoReady(compressedUrl);
+                                                                                                                                          } catch (error) {
+                                                                                                                                                console.error(error);
+                                                                                                                                                      setStatus('Error: ' + error.message);
+                                                                                                                                                          }
+                                                                                                                                                            };
 
-                                                                                return (
-                                                                                    <div className="p-4 border rounded bg-gray-800 text-white">
-                                                                                          <p>Estado: {status}</p>
-                                                                                                <input type="file" accept="video/*" onChange={(e) => compressVideo(e.target.files[0])} />
-                                                                                                    </div>
-                                                                                                      );
-                                                                                                      }
+                                                                                                                                                              return (
+                                                                                                                                                                  <div className="p-4 border border-gray-600 rounded-lg bg-gray-700">
+                                                                                                                                                                        <p className="mb-3 font-medium">Estado: <span className="text-yellow-400">{status}</span></p>
+                                                                                                                                                                              <input 
+                                                                                                                                                                                      type="file" 
+                                                                                                                                                                                              accept="video/*" 
+                                                                                                                                                                                                      className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                                                                                                                                                                                                              onChange={(e) => {
+                                                                                                                                                                                                                        if (e.target.files[0]) compressVideo(e.target.files[0]);
+                                                                                                                                                                                                                                }} 
+                                                                                                                                                                                                                                      />
+                                                                                                                                                                                                                                          </div>
+                                                                                                                                                                                                                                            );
+                                                                                                                                                                                                                                            }
 
-                                                                                                      export default VideoCompressor;
-                                                                                                      
+                                                                                                                                                                                                                                            export default VideoCompressor;
+                                                                                                                                                                                                                                            

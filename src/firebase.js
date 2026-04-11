@@ -1,7 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
-// Tus credenciales reales
 const firebaseConfig = {
   apiKey: "AIzaSyCGCOvF3CT1a-YwQXUWWMR45i-z57Xfooo",
     authDomain: "telegallery-c280a.firebaseapp.com",
@@ -12,9 +11,6 @@ const firebaseConfig = {
               measurementId: "G-DDB3SGN57W"
               };
 
-              // Inicializamos la conexión
               const app = initializeApp(firebaseConfig);
-
-              // Exportamos la base de datos
               export const db = getFirestore(app);
               

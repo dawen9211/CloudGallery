@@ -1,25 +1,16 @@
-// src/firebase.js
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-// Credenciales proporcionadas para CloudGallery
-// (Los IDs internos mantienen el nombre original del proyecto en Firebase)
+// Reemplaza estos valores con tus credenciales reales de Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyCGCOvF3CT1a-YwQXUWWMR45i-z57Xfooo",
-    authDomain: "telegallery-c280a.firebaseapp.com",
-      projectId: "telegallery-c280a",
-        storageBucket: "telegallery-c280a.firebasestorage.app",
-          messagingSenderId: "782669473275",
-            appId: "1:782669473275:web:8674bcb78ffcc35fbcd75e",
-              measurementId: "G-DDB3SGN57W"
-              };
+  apiKey: "TU_API_KEY",
+    authDomain: "TU_AUTH_DOMAIN",
+      projectId: "TU_PROJECT_ID",
+        storageBucket: "TU_STORAGE_BUCKET",
+          messagingSenderId: "TU_MESSAGING_SENDER_ID",
+            appId: "TU_APP_ID"
+            };
 
-              // Inicializar Firebase
-              const app = initializeApp(firebaseConfig);
-
-              // Inicializar servicios que usaremos
-              const auth = getAuth(app);
-              const db = getFirestore(app);
-
-              export { auth, db };
+            const app = initializeApp(firebaseConfig);
+            export const db = getFirestore(app);
+            

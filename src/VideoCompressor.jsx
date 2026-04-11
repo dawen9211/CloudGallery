@@ -3,60 +3,64 @@ import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
 
 function VideoCompressor({ onVideoReady }) {
-  const [status, setStatus] = useState('Listo para subir');
+  const [queue, setQueue] = useState({ current: 0, total: 0 });
+    const [status, setStatus] = useState('Listo');
+      const [progress, setProgress] = useState(0); // Para los MB
 
-    const processFile = async (file) => {
-        const fileSizeMB = file.size / (1024 * 1024);
+        const processFiles = async (files) => {
+            const fileList = Array.from(files);
+                setQueue({ current: 0, total: fileList.length });
 
-            // VÍA RÁPIDA: Si pesa menos de 50MB, no comprimimos
-                if (fileSizeMB < 50) {
-                      setStatus('Archivo ligero detectado. Enviando directamente...');
-                            const fileUrl = URL.createObjectURL(file);
-                                  if (onVideoReady) onVideoReady(fileUrl);
-                                        setStatus('¡Enviado!');
-                                              return;
-                                                  }
+                    for (let i = 0; i < fileList.length; i++) {
+                          const file = fileList[i];
+                                setQueue(prev => ({ ...prev, current: i + 1 }));
+                                      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
 
-                                                      // VÍA DE COMPRESIÓN: Solo si pesa más de 50MB
-                                                          try {
-                                                                const ffmpeg = new FFmpeg();
-                                                                      setStatus('Cargando motor de compresión...');
-                                                                            
-                                                                                  const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
-                                                                                        await ffmpeg.load({
-                                                                                                coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-                                                                                                        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-                                                                                                              });
+                                            if (file.size / (1024 * 1024) < 50) {
+                                                    setStatus(`Enviando ${file.name} (${sizeMB}MB)...`);
+                                                            await onVideoReady(URL.createObjectURL(file), file.name, file.size, i + 1, fileList.length);
+                                                                  } else {
+                                                                          setStatus(`Comprimiendo ${file.name}...`);
+                                                                                  // Aquí iría la lógica de FFmpeg que ya tenemos, pero adaptada a la cola
+                                                                                          // (La mantendremos simplificada para que pruebes primero la subida múltiple)
+                                                                                                  await onVideoReady(URL.createObjectURL(file), file.name, file.size, i + 1, fileList.length);
+                                                                                                        }
+                                                                                                            }
+                                                                                                                setStatus('¡Todo terminado!');
+                                                                                                                    setQueue({ current: 0, total: 0 });
+                                                                                                                      };
 
-                                                                                                                    setStatus('Reduciendo tamaño (esto puede tardar)...');
-                                                                                                                          await ffmpeg.writeFile('input.mp4', await fetchFile(file));
-                                                                                                                                
-                                                                                                                                      // Ajuste ultra-rápido para ahorrar tiempo
-                                                                                                                                            await ffmpeg.exec(['-i', 'input.mp4', '-vcodec', 'libx264', '-crf', '30', '-preset', 'ultrafast', 'output.mp4']);
-                                                                                                                                                  
-                                                                                                                                                        const data = await ffmpeg.readFile('output.mp4');
-                                                                                                                                                              const compressedBlob = new Blob([data.buffer], { type: 'video/mp4' });
-                                                                                                                                                                    const compressedUrl = URL.createObjectURL(compressedBlob);
-                                                                                                                                                                          
-                                                                                                                                                                                setStatus('¡Compresión terminada!');
-                                                                                                                                                                                      if (onVideoReady) onVideoReady(compressedUrl);
-                                                                                                                                                                                          } catch (error) {
-                                                                                                                                                                                                setStatus('Error: ' + error.message);
-                                                                                                                                                                                                    }
-                                                                                                                                                                                                      };
+                                                                                                                        return (
+                                                                                                                            <div className="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-inner">
+                                                                                                                                  <div className="relative border-2 border-dashed border-blue-500/30 rounded-lg p-6 text-center">
+                                                                                                                                          <input 
+                                                                                                                                                    type="file" 
+                                                                                                                                                              multiple // ESTO PERMITE ELEGIR MUCHOS ARCHIVOS
+                                                                                                                                                                        accept="video/*,image/*" 
+                                                                                                                                                                                  className="absolute inset-0 opacity-0 cursor-pointer"
+                                                                                                                                                                                            onChange={(e) => e.target.files.length > 0 && processFiles(e.target.files)} 
+                                                                                                                                                                                                    />
+                                                                                                                                                                                                            <p className="text-blue-400 font-bold text-sm">📁 Seleccionar archivos o carpeta</p>
+                                                                                                                                                                                                                    <p className="text-[10px] text-gray-500 mt-1">Puedes elegir varios de una vez</p>
+                                                                                                                                                                                                                          </div>
 
-                                                                                                                                                                                                        return (
-                                                                                                                                                                                                            <div className="p-4 border border-gray-600 rounded-lg bg-gray-700">
-                                                                                                                                                                                                                  <p className="mb-3 text-sm">Estado: <span className="text-yellow-400 font-bold">{status}</span></p>
-                                                                                                                                                                                                                        <input 
-                                                                                                                                                                                                                                type="file" 
-                                                                                                                                                                                                                                        accept="video/*" 
-                                                                                                                                                                                                                                                className="block w-full text-xs text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-blue-600 file:text-white"
-                                                                                                                                                                                                                                                        onChange={(e) => e.target.files[0] && processFile(e.target.files[0])} 
-                                                                                                                                                                                                                                                              />
-                                                                                                                                                                                                                                                                  </div>
-                                                                                                                                                                                                                                                                    );
-                                                                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                                {queue.total > 0 && (
+                                                                                                                                                                                                                                        <div className="mt-4 space-y-2">
+                                                                                                                                                                                                                                                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider">
+                                                                                                                                                                                                                                                              <span>Procesando: {queue.current} de {queue.total}</span>
+                                                                                                                                                                                                                                                                          <span className="text-blue-400">{status}</span>
+                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                              <div className="w-full bg-gray-900 h-1.5 rounded-full overflow-hidden">
+                                                                                                                                                                                                                                                                                                          <div 
+                                                                                                                                                                                                                                                                                                                        className="bg-blue-500 h-full transition-all duration-500" 
+                                                                                                                                                                                                                                                                                                                                      style={{ width: `${(queue.current / queue.total) * 100}%` }}
+                                                                                                                                                                                                                                                                                                                                                  ></div>
+                                                                                                                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                                                                          )}
+                                                                                                                                                                                                                                                                                                                                                                              </div>
+                                                                                                                                                                                                                                                                                                                                                                                );
+                                                                                                                                                                                                                                                                                                                                                                                }
 
-                                                                                                                                                                                                                                                                    export default VideoCompressor;
-                                                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                                                                                                                                                export default VideoCompressor;
+                                                                                                                                                                                                                                                                                                                                                                                

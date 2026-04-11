@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
-// Tus credenciales configuradas correctamente
+// Tus credenciales reales
 const firebaseConfig = {
   apiKey: "AIzaSyCGCOvF3CT1a-YwQXUWWMR45i-z57Xfooo",
     authDomain: "telegallery-c280a.firebaseapp.com",
@@ -15,6 +15,6 @@ const firebaseConfig = {
               // Inicializamos la conexión
               const app = initializeApp(firebaseConfig);
 
-              // Exportamos la base de datos para que App.tsx la reconozca
+              // Exportamos la base de datos
               export const db = getFirestore(app);
               
